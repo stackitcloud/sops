@@ -256,8 +256,8 @@ func (ks Server) Encrypt(ctx context.Context,
 		response = &EncryptResponse{
 			Ciphertext: ciphertext,
 		}
-	case *Key_STACKITKmsKey:
-		ciphertext, err := ks.encryptWithSTACKITKms(k.STACKITKmsKey, req.Plaintext)
+	case *Key_StackitKmsKey:
+		ciphertext, err := ks.encryptWithSTACKITKms(k.StackitKmsKey, req.Plaintext)
 		if err != nil {
 			return nil, err
 		}
@@ -292,8 +292,8 @@ func keyToString(key *Key) string {
 		return fmt.Sprintf("Hashicorp Vault key with URI %s/v1/%s/keys/%s", k.VaultKey.VaultAddress, k.VaultKey.EnginePath, k.VaultKey.KeyName)
 	case *Key_HckmsKey:
 		return fmt.Sprintf("HuaweiCloud KMS key with ID %s", k.HckmsKey.KeyId)
-	case *Key_STACKITKmsKey:
-		return fmt.Sprintf("STACKIT KMS key with resource ID %s", k.STACKITKmsKey.ResourceId)
+	case *Key_StackitKmsKey:
+		return fmt.Sprintf("STACKIT KMS key with resource ID %s", k.StackitKmsKey.ResourceId)
 	default:
 		return "Unknown key type"
 	}
@@ -378,8 +378,8 @@ func (ks Server) Decrypt(ctx context.Context,
 		response = &DecryptResponse{
 			Plaintext: plaintext,
 		}
-	case *Key_STACKITKmsKey:
-		plaintext, err := ks.decryptWithSTACKITKms(k.STACKITKmsKey, req.Ciphertext)
+	case *Key_StackitKmsKey:
+		plaintext, err := ks.decryptWithSTACKITKms(k.StackitKmsKey, req.Ciphertext)
 		if err != nil {
 			return nil, err
 		}

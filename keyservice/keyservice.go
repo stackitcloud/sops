@@ -90,8 +90,8 @@ func KeyFromMasterKey(mk keys.MasterKey) Key {
 		}
 	case *stackitkms.MasterKey:
 		return Key{
-			KeyType: &Key_STACKITKmsKey{
-				STACKITKmsKey: &STACKITKmsKey{
+			KeyType: &Key_StackitKmsKey{
+				StackitKmsKey: &STACKITKmsKey{
 					ResourceId: mk.ResourceID,
 				},
 			},
