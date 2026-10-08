@@ -161,7 +161,6 @@ signs:
 dockers:
   - image_templates:
       - 'ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-amd64'
-      - 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-amd64'
     use: buildx
     goos: linux
     goarch: amd64
@@ -179,7 +178,6 @@ dockers:
 
   - image_templates:
       - 'ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-arm64'
-      - 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-arm64'
     use: buildx
     goos: linux
     goarch: arm64
@@ -197,7 +195,6 @@ dockers:
 
   - image_templates:
       - 'ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine-amd64'
-      - 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine-amd64'
     use: buildx
     goos: linux
     goarch: amd64
@@ -215,7 +212,6 @@ dockers:
 
   - image_templates:
       - 'ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine-arm64'
-      - 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine-arm64'
     use: buildx
     goos: linux
     goarch: arm64
@@ -243,16 +239,6 @@ docker_manifests:
       - 'ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine-amd64'
       - 'ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine-arm64'
 
-  - name_template: 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}'
-    image_templates:
-      - 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-amd64'
-      - 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-arm64'
-
-  - name_template: 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine'
-    image_templates:
-      - 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine-amd64'
-      - 'quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine-arm64'
-
 # xref: https://goreleaser.com/customization/docker_sign/
 docker_signs:
   - cmd: cosign
@@ -270,7 +256,7 @@ changelog:
 
 # xref: https://goreleaser.com/customization/release/
 release:
-  prerelease: auto
+  prerelease: false
   header: |
     ## Installation
 
@@ -340,11 +326,6 @@ release:
     - `ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}`
     - `ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine`
 
-    ### Quay.io
-
-    - `quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}`
-    - `quay.io/{{ .Env.GITHUB_REPOSITORY }}:v{{ .Version }}-alpine`
-
     ### Verify container image signature
 
     The container images are signed using [Cosign](https://docs.sigstore.dev/cosign/overview/) with GitHub OIDC. To validate the signature of an image, run the following command:
@@ -363,3 +344,24 @@ release:
     ## Software Bill of Materials
 
     The Software Bill of Materials (SBOM) for each binary is accessible within the artifacts enclosed with this release. It is presented as an [SPDX](https://spdx.dev/) JSON file, formatted as `<binary>.spdx.sbom.json`.
+
+# xref: https://goreleaser.com/customization/homebrew/
+brews:
+  - name: sops
+    ids:
+      - archive-unix
+    repository:
+      owner: stackitcloud
+      name: homebrew-tap
+      token: '{{ index .Env "HOMEBREW_TAP_TOKEN" }}'
+    folder: Formula
+    commit_author:
+      name: sops-stackit release bot
+      email: noreply@stackit.de
+    homepage: https://github.com/{{ .Env.GITHUB_REPOSITORY }}
+    description: Simple and flexible tool for managing secrets, with STACKIT KMS
+    license: MPL-2.0
+    # Skip until the tap token exists.
+    skip_upload: '{{ if not (index .Env "HOMEBREW_TAP_TOKEN") }}true{{ end }}'
+    test: |
+      system "#{bin}/sops", "--version", "--disable-version-check"

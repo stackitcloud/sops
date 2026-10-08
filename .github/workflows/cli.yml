@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - stackit
   pull_request:
     branches:
       - main
+      - stackit
 
 permissions:
   contents: read

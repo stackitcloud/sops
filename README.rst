@@ -1,6 +1,13 @@
 SOPS: Secrets OPerationS
 ========================
 
+.. note::
+
+   This is a fork of `getsops/sops <https://github.com/getsops/sops>`_ with
+   STACKIT KMS support. It exists until
+   `getsops/sops#2094 <https://github.com/getsops/sops/pull/2094>`_ is merged.
+   See `STACKIT.md <STACKIT.md>`_ for installation and usage.
+
 **SOPS** is an editor of encrypted files that supports YAML, JSON, ENV, INI and BINARY
 formats and encrypts with AWS KMS, GCP KMS, Azure Key Vault, HuaweiCloud KMS, age, and PGP.
 (`demo <https://www.youtube.com/watch?v=YTEVyLXFiq0>`_)
