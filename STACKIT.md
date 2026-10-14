@@ -14,17 +14,6 @@ fork releases on top of it.
 
 ## Installation
 
-### Homebrew (macOS, Linux)
-
-Coming soon. The formula is not published yet.
-
-```shell
-brew install stackitcloud/tap/sops
-```
-
-The formula is named `sops`, like the one in homebrew-core. If that one is
-installed, remove it first with `brew uninstall sops`.
-
 ### mise
 
 Install with [mise](https://mise.jdx.dev/):
@@ -55,10 +44,13 @@ minimum_release_age_excludes = ["github:stackitcloud/sops"]
 ### Binary (macOS, Linux)
 
 ```shell
-VERSION=$(curl -fsSL https://api.github.com/repos/stackitcloud/sops/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
+API=https://api.github.com/repos/stackitcloud/sops/releases/latest
+VERSION=$(curl -fsSL "$API" \
+  | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
 OS=linux     # or darwin
 ARCH=amd64   # or arm64
-curl -fLo sops "https://github.com/stackitcloud/sops/releases/download/${VERSION}/sops-${VERSION}.${OS}.${ARCH}"
+BASE=https://github.com/stackitcloud/sops/releases/download
+curl -fLo sops "${BASE}/${VERSION}/sops-${VERSION}.${OS}.${ARCH}"
 chmod +x sops
 sudo mv sops /usr/local/bin/sops
 ```
@@ -70,7 +62,8 @@ Windows binaries (`sops-vX.Y.Z-stackit.N.amd64.exe`) are on the
 
 ```shell
 ARCH=amd64   # or arm64
-curl -fsSL https://api.github.com/repos/stackitcloud/sops/releases/latest | grep -o "https://[^\"]*_${ARCH}\.deb" | xargs curl -fLO
+curl -fsSL https://api.github.com/repos/stackitcloud/sops/releases/latest \
+  | grep -o "https://[^\"]*_${ARCH}\.deb" | xargs curl -fLO
 sudo dpkg -i sops_*_${ARCH}.deb
 ```
 
@@ -78,7 +71,8 @@ sudo dpkg -i sops_*_${ARCH}.deb
 
 ```shell
 ARCH=x86_64   # or aarch64
-curl -fsSL https://api.github.com/repos/stackitcloud/sops/releases/latest | grep -o "https://[^\"]*\.${ARCH}\.rpm" | xargs curl -fLO
+curl -fsSL https://api.github.com/repos/stackitcloud/sops/releases/latest \
+  | grep -o "https://[^\"]*\.${ARCH}\.rpm" | xargs curl -fLO
 sudo rpm -Uvh sops-*.${ARCH}.rpm
 ```
 
@@ -102,15 +96,17 @@ Set the STACKIT KMS key in `.sops.yaml`:
 
 ```yaml
 creation_rules:
-  - stackit_kms: projects/<projectId>/regions/<regionId>/keyRings/<keyRingId>/keys/<keyId>/versions/<versionNumber>
+  - stackit_kms: >-
+      projects/<project>/regions/eu01/keyRings/<ring>/keys/<key>/versions/1
 ```
 
 On the command line, use `--stackit-kms` or `SOPS_STACKIT_KMS_IDS`.
 `sops updatekeys`, `--add-stackit-kms` and `--rm-stackit-kms` work like the
 other key sources.
 
-Authentication uses the default
-[STACKIT SDK credentials](https://github.com/stackitcloud/stackit-sdk-go#authentication).
+Authentication uses the default [STACKIT SDK credentials][sdk-auth].
+
+[sdk-auth]: https://github.com/stackitcloud/stackit-sdk-go#authentication
 
 ## Releasing
 
@@ -131,7 +127,8 @@ SDK again:
 
 ```shell
 git checkout --ours go.mod go.sum
-go get github.com/stackitcloud/stackit-sdk-go/core@latest github.com/stackitcloud/stackit-sdk-go/services/kms@latest
+go get github.com/stackitcloud/stackit-sdk-go/core@latest \
+  github.com/stackitcloud/stackit-sdk-go/services/kms@latest
 go mod tidy
 git add go.mod go.sum
 git rebase --continue
@@ -151,8 +148,4 @@ git tag vNEW-stackit.1
 git push origin vNEW-stackit.1
 ```
 
-The release workflow publishes binaries, packages and images. It updates the
-Homebrew formula in
-[stackitcloud/homebrew-tap](https://github.com/stackitcloud/homebrew-tap) when
-the `HOMEBREW_TAP_TOKEN` secret holds a token with write access to that
-repository. Without the secret, the release skips the formula.
+The release workflow publishes binaries, packages and images.
