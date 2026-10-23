@@ -11,6 +11,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Holds the macOS signing secrets.
+    environment: signing
 
     permissions:
       contents: write # For creating the GitHub release.
@@ -68,11 +70,19 @@ jobs:
           # Note that the following is the version of goreleaser, and NOT a Go version!
           # When bumping it, make sure to check out goreleaser's changelog first!
           # (https://github.com/goreleaser/goreleaser/releases)
-          version: 1.21.x
+          # 1.26 adds macOS signing and notarization.
+          version: 1.26.x
           args: release --clean --timeout 1h
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          # Base64 of the Developer ID Application .p12.
+          MACOS_SIGN_P12: ${{ secrets.MACOS_SIGN_P12 }}
+          MACOS_SIGN_PASSWORD: ${{ secrets.MACOS_SIGN_PASSWORD }}
+          # Base64 of the App Store Connect .p8.
+          MACOS_NOTARY_KEY: ${{ secrets.MACOS_NOTARY_KEY }}
+          MACOS_NOTARY_KEY_ID: ${{ secrets.MACOS_NOTARY_KEY_ID }}
+          MACOS_NOTARY_ISSUER_ID: ${{ secrets.MACOS_NOTARY_ISSUER_ID }}
 
       - name: Extract release metadata
         id: release-metadata

@@ -58,6 +58,14 @@ sudo mv sops /usr/local/bin/sops
 Windows binaries (`sops-vX.Y.Z-stackit.N.amd64.exe`) are on the
 [releases](https://github.com/stackitcloud/sops/releases) page.
 
+The macOS binaries are signed by
+`Developer ID Application: Schwarz IT KG (5DR5YYJ2CC)` and notarized by Apple.
+To check one:
+
+```shell
+spctl --assess --type install --verbose /usr/local/bin/sops
+```
+
 ### Debian, Ubuntu (`.deb`)
 
 ```shell
@@ -148,4 +156,6 @@ git tag vNEW-stackit.1
 git push origin vNEW-stackit.1
 ```
 
-The release workflow publishes binaries, packages and images.
+The release workflow publishes binaries, packages and images. It signs and
+notarizes the macOS binaries with the secrets of the `signing` environment,
+see `.github/workflows/release.yml`.

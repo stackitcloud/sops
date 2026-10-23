@@ -86,6 +86,23 @@ universal_binaries:
     # NB: Available in GoReleaser >=1.20.0.
     mod_timestamp: "{{ .CommitTimestamp }}"
 
+# xref: https://goreleaser.com/customization/notarize/
+notarize:
+  macos:
+    # Snapshots skip it. Releases fail without the certificate.
+    - enabled: "{{ not .IsSnapshot }}"
+      ids:
+        - binary-darwin
+        - binary-darwin-universal
+      sign:
+        certificate: "{{ .Env.MACOS_SIGN_P12 }}"
+        password: "{{ .Env.MACOS_SIGN_PASSWORD }}"
+      notarize:
+        issuer_id: "{{ .Env.MACOS_NOTARY_ISSUER_ID }}"
+        key_id: "{{ .Env.MACOS_NOTARY_KEY_ID }}"
+        key: "{{ .Env.MACOS_NOTARY_KEY }}"
+        wait: true
+
 # xref: https://goreleaser.com/customization/nfpm/
 nfpms:
   - id: deb
@@ -354,7 +371,7 @@ brews:
       owner: stackitcloud
       name: homebrew-tap
       token: '{{ index .Env "HOMEBREW_TAP_TOKEN" }}'
-    folder: Formula
+    directory: Formula
     commit_author:
       name: sops-stackit release bot
       email: noreply@stackit.de
